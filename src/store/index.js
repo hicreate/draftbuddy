@@ -9,9 +9,9 @@ export default new Vuex.Store({
     players: "",
     loading: true,
     team: [],
-    pick: "0",
-    netADP: "0",
-    adpGroup: [],
+    pick: "1",
+    netADP: "1",
+    adpGroup: [1, 3, 5, 4, 11, 9],
   },
   getters: {
     getPlayers: (state) => {

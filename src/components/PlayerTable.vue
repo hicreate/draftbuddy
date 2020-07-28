@@ -47,10 +47,11 @@
             >
           </v-scroll-x-transition>
         </template>
+
         <template v-slot:item.remove="{ item }">
           <v-scroll-x-transition>
             <v-chip
-              v-if="!isDrafted(item)"
+              v-if="!isRemoved(item)"
               @click="removePlayer(item)"
               close-icon="mdi-alarm-light"
               color="red"
@@ -58,6 +59,9 @@
               small
               close
               >Remove</v-chip
+            >
+            <v-chip v-else color="red" small close-icon="mdi-tick" outlined
+              >Removed</v-chip
             >
           </v-scroll-x-transition>
         </template>
@@ -149,7 +153,12 @@ export default {
       this.$store.dispatch("addADP", net.toFixed(2));
       return net.toFixed(2);
     },
-    addPlayer(player) {
+    clickRemove(player) {
+      player.removed = true;
+      console.log(player);
+      this.delayRemove(player);
+    },
+    async addPlayer(player) {
       //we're going to add the player to an array and also give it a property that equates to true so we can disable it in the list and set a BG colour
       let midPlayer = player;
       this.pick++;
@@ -159,6 +168,12 @@ export default {
       this.$store.dispatch("increasePick");
       let net = this.calculateNet(player);
       this.$store.dispatch("setNetADP", net);
+      this.delayRemove(player);
+    },
+    delayRemove(player) {
+      setTimeout(() => {
+        this.$store.dispatch("removePlayer", player);
+      }, 2000);
     },
     removePlayer(player) {
       //we're going to add the player to an array and also give it a property that equates to true so we can disable it in the list and set a BG colour
@@ -187,6 +202,14 @@ export default {
       });
       if (selected.length) {
         return true;
+      }
+    },
+    isRemoved(item) {
+      console.log("the item", item);
+      if (item.removed === true) {
+        return true;
+      } else {
+        return false;
       }
     },
   },

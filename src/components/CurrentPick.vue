@@ -1,7 +1,7 @@
 <template>
   <v-card min-height="150px" class="cyan darken-4 pt-9">
     <v-card-text>
-      <h1 style="font-size:5em;" class="light-green--text text-center pb-0">
+      <h1 style="font-size:3.5em;" class="light-green--text text-center pb-0">
         {{ pick }}
       </h1>
     </v-card-text>
