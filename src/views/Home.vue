@@ -7,7 +7,7 @@
       <v-col lg="3">
         <NetAdp> </NetAdp>
       </v-col>
-      <v-col lg="6"><BestPlayer> </BestPlayer></v-col>
+      <v-col lg="6"><BestPlayer></BestPlayer></v-col>
     </v-row>
     <bpDisplay></bpDisplay>
     <v-row>

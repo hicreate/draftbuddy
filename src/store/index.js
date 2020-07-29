@@ -11,7 +11,7 @@ export default new Vuex.Store({
     team: [],
     pick: "1",
     netADP: "1",
-    adpGroup: [1, 3, 5, 4, 11, 9],
+    adpGroup: [],
   },
   getters: {
     getPlayers: (state) => {
@@ -89,7 +89,8 @@ export default new Vuex.Store({
       commit("SET_NETADP", payload);
     },
     addADP({ commit }, payload) {
-      commit("ADD_ADP_TO_GROUP", payload);
+      const newAdp = parseFloat(payload);
+      commit("ADD_ADP_TO_GROUP", newAdp);
     },
   },
   modules: {},

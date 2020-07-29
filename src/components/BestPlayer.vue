@@ -1,6 +1,7 @@
 <template>
   <v-card min-height="150px">
     <v-sparkline
+      :key="sparkKey"
       :labels="this.sparkData"
       :value="this.sparkData"
       :gradient="gradient"
@@ -12,10 +13,10 @@
       :fill="fill"
       :type="type"
       :auto-line-width="autoLineWidth"
-      auto-draw
+      auto-draw="true"
       height="54px;"
     ></v-sparkline>
-    <v-card-subtitle class="pa-0 text-center">ADP PERFORMANCE</v-card-subtitle>
+    <v-card-subtitle class="pa-0 text-center">AGG. ADP</v-card-subtitle>
   </v-card>
 </template>
 
@@ -42,12 +43,26 @@ export default {
       gradientDirection: "top",
       gradients,
       type: "trend",
-      autoLineWidth: false,
+      autoLineWidth: true,
+      sparkKey: 0,
     };
+  },
+  methods: {
+    updateSpark() {
+      this.sparkKey++;
+    },
+  },
+  updated() {
+    //this.updateSpark();
   },
   computed: {
     sparkData() {
       return this.$store.getters.showAdpGroup;
+    },
+  },
+  watch: {
+    sparkData: function() {
+      this.updateSpark();
     },
   },
 };

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: `http://localhost:8080`,
+  baseURL: ``,
   withCredentials: false, // This is the default
   headers: {
     Accept: "application/json",
@@ -11,6 +11,6 @@ const apiClient = axios.create({
 
 export default {
   getPlayers() {
-    return apiClient.get("/adp.json");
+    return apiClient.get("./adp.json");
   },
 };

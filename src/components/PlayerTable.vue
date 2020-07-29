@@ -204,14 +204,7 @@ export default {
         return true;
       }
     },
-    isRemoved(item) {
-      console.log("the item", item);
-      if (item.removed === true) {
-        return true;
-      } else {
-        return false;
-      }
-    },
+    isRemoved() {},
   },
   computed: {
     // mix the getters into computed with object spread operator
@@ -222,7 +215,7 @@ export default {
       // ...
     ]),
     itemsPerPage() {
-      return this.getPlayers.length * 0.1;
+      return 75;
     },
   },
   mounted() {},
