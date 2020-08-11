@@ -1,152 +1,233 @@
 <template>
   <div>
     <div>
-      <h4>Find a player</h4>
-      <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        hide-details
-      ></v-text-field>
+      <div v-if="$vuetify.breakpoint.mdAndUp">
+        <h4>Find a player</h4>
+        <v-spacer></v-spacer>
+        <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" hide-details></v-text-field>
+      </div>
+      <v-scroll-y-transition v-if="getPlayers">
+        <!-- Data table that shows on devices above 960px -->
+        <v-data-table
+          v-if="$vuetify.breakpoint.mdAndUp"
+          v-model="selected"
+          :headers="headers"
+          :items="getPlayers"
+          :fixed-header="fixed"
+          height="60vh"
+          :items-per-page="itemsPerPage"
+          :search="search"
+          :loading="isLoading"
+          :item-class="row_classes"
+          item-key="name"
+          class="elevation-1"
+        >
+          <template v-slot:item.AverageDraftPosition="{ item }">
+            <v-chip :color="getColor(item.AverageDraftPosition)" dark>
+              {{
+              item.AverageDraftPosition
+              }}
+            </v-chip>
+          </template>
+
+          <template v-slot:item.actions="{ item }">
+            <div class="d-flex">
+              <v-scroll-x-transition>
+                <v-btn @click="openSheet(item)" rounded small color="success">
+                  DRAFT
+                  <v-icon>mdi-account-plus</v-icon>
+                </v-btn>
+              </v-scroll-x-transition>
+              <v-scroll-x-transition>
+                <v-btn @click="removePlayer(item)" class="ml-2" rounded small color="red">
+                  REMOVE
+                  <v-icon>mdi-minus</v-icon>
+                </v-btn>
+              </v-scroll-x-transition>
+            </div>
+          </template>
+        </v-data-table>
+
+        <!-- data table that shows on mobile -->
+        <v-data-table
+          v-else
+          dense
+          disable-sort="true"
+          v-model="selected"
+          :headers="mobileHeaders"
+          :items="getPlayers"
+          :fixed-header="fixed"
+          height="60vh"
+          :items-per-page="itemsPerPage"
+          :search="search"
+          :loading="isLoading"
+          :item-class="row_classes"
+          item-key="name"
+          class="elevation-1"
+        >
+          <template v-slot:item.AverageDraftPosition="{ item }">
+            <v-chip :color="getColor(item.AverageDraftPosition)" dark>
+              {{
+              item.AverageDraftPosition
+              }}
+            </v-chip>
+          </template>
+
+          <template v-slot:item.actions="{ item }">
+            <div class="d-flex">
+              <v-scroll-x-transition>
+                <v-btn @click="openSheet(item)" rounded small color="success">
+                  DRAFT
+                  <v-icon>mdi-account-plus</v-icon>
+                </v-btn>
+              </v-scroll-x-transition>
+              <v-scroll-x-transition>
+                <v-btn @click="removePlayer(item)" class="ml-2" rounded small color="red">
+                  REMOVE
+                  <v-icon>mdi-minus</v-icon>
+                </v-btn>
+              </v-scroll-x-transition>
+            </div>
+          </template>
+
+          <!-- player slot -->
+
+          <template v-slot:item.mobilePlayer="{ item }">
+            <div class="d-flex" style="width:100% !important;">
+              <div style="width:10%;" class="d-flex flex-column justify-center">
+                <div class="text-left">
+                  <p class="mb-0" style="font-size: 7px; font-weight: 700;">ADP</p>
+                  <p class="mb-0" :style="adpColor(item.AverageDraftPosition)">
+                    {{
+                    item.AverageDraftPosition
+                    }}
+                  </p>
+                </div>
+              </div>
+              <div class="d-flex flex-column pl-4" style="width:70%;">
+                <p class="text-left pb-0 mb-0" style="font-size: 11px;">{{item.Name}}</p>
+                <div class="text-left">
+                  <span
+                    style="font-size:9px; font-weight: 800; font-style: italic;"
+                  >{{item.Team}} / {{item.Position}}</span>
+                </div>
+              </div>
+              <div class="d-flex">
+                <v-scroll-x-transition>
+                  <v-btn @click="openSheet(item)" x-small fab color="success">
+                    <v-icon>mdi-account-plus</v-icon>
+                  </v-btn>
+                </v-scroll-x-transition>
+                <v-scroll-x-transition>
+                  <v-btn @click="removePlayer(item)" class="ml-2" fab x-small color="red">
+                    <v-icon>mdi-minus</v-icon>
+                  </v-btn>
+                </v-scroll-x-transition>
+              </div>
+            </div>
+          </template>
+        </v-data-table>
+      </v-scroll-y-transition>
     </div>
-    <v-scroll-y-transition v-if="getPlayers">
-      <v-data-table
-        v-model="selected"
-        :headers="headers"
-        :items="getPlayers"
-        :fixed-header="fixed"
-        height="60vh"
-        :items-per-page="itemsPerPage"
-        :search="search"
-        :loading="isLoading"
-        :item-class="row_classes"
-        item-key="name"
-        class="elevation-1"
-      >
-        <template v-slot:item.AverageDraftPosition="{ item }">
-          <v-chip :color="getColor(item.AverageDraftPosition)" dark>{{
-            item.AverageDraftPosition
-          }}</v-chip>
-        </template>
-
-        <template v-slot:item.addToTeam="{ item }">
-          <v-scroll-x-transition>
-            <v-chip
-              v-if="!isDrafted(item)"
-              @click="addPlayer(item)"
-              close-icon="mdi-account-check"
-              color="light-green"
-              link
-              small
-              close
-              >Draft</v-chip
-            >
-            <v-chip v-else color="success" small close-icon="mdi-tick" outlined
-              >Drafted</v-chip
-            >
-          </v-scroll-x-transition>
-        </template>
-
-        <template v-slot:item.remove="{ item }">
-          <v-scroll-x-transition>
-            <v-chip
-              v-if="!isRemoved(item)"
-              @click="removePlayer(item)"
-              close-icon="mdi-alarm-light"
-              color="red"
-              link
-              small
-              close
-              >Remove</v-chip
-            >
-            <v-chip v-else color="red" small close-icon="mdi-tick" outlined
-              >Removed</v-chip
-            >
-          </v-scroll-x-transition>
-        </template>
-      </v-data-table>
-    </v-scroll-y-transition>
+    <PlayerSheet :sheet="sheet" :player="selectedPlayer" @closed="sheetClosed"></PlayerSheet>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import PlayerSheet from "./PlayerSheet";
 
 export default {
   name: "PlayerTable",
+  components: {
+    PlayerSheet
+  },
   data() {
     return {
       pick: 0,
       players: "",
+      selectedPlayer: null,
       singleSelect: false,
       loading: false,
       selected: [],
       search: "",
       headers: [
         {
-          text: "",
-          value: "addToTeam",
-          sortable: false,
-        },
-        {
-          text: "",
-          value: "remove",
-          sortable: false,
+          text: "Actions",
+          value: "actions",
+          sortable: false
         },
         {
           text: "Player Name",
           align: "start",
           sortable: false,
-          value: "Name",
+          value: "Name"
         },
         {
           text: "Team",
           align: "start",
           sortable: true,
-          value: "Team",
+          value: "Team"
         },
         {
           text: "Position",
           align: "start",
           sortable: true,
-          value: "Position",
+          value: "Position"
         },
         {
           text: "Bye Week",
           align: "start",
           sortable: true,
-          value: "ByeWeek",
+          value: "ByeWeek"
         },
         {
           text: "Age",
           align: "start",
           sortable: false,
-          value: "Age",
+          value: "Age"
         },
         {
           text: "Overall Fantasy Rank",
           align: "start",
           sortable: true,
-          value: "Rank",
+          value: "Rank"
         },
         {
           text: "Projected Fantasy Points",
           align: "start",
           sortable: true,
-          value: "FantasyPoints",
+          value: "FantasyPoints"
         },
         {
           text: "ADP",
           align: "start",
           sortable: true,
-          value: "AverageDraftPosition",
-        },
+          value: "AverageDraftPosition"
+        }
       ],
-      fixed: true,
+      mobileHeaders: [
+        {
+          align: "start",
+          sortable: true,
+          value: "mobilePlayer"
+        }
+      ],
+      sheet: false,
+      fixed: true
     };
   },
   methods: {
+    adpColor(adp) {
+      return "color:" + this.getColor(adp);
+    },
+    openSheet(item) {
+      this.sheet = true;
+      this.selectedPlayer = item;
+    },
+    sheetClosed() {
+      this.sheet = false;
+    },
     calculateNet(player) {
       let net = this.pick - player.AverageDraftPosition;
       console.log(net);
@@ -184,12 +265,12 @@ export default {
       console.log(item);
     },
     getColor(adp) {
-      if (adp > 50) return "red";
-      else if (adp > 25) return "orange";
+      if (adp > this.showPick + 15) return "red";
+      else if (adp > this.showPick + 8) return "orange";
       else return "green";
     },
     row_classes(item) {
-      let selected = this.showTeam.filter((player) => {
+      let selected = this.showTeam.filter(player => {
         return player.PlayerID === item.PlayerID;
       });
       if (selected.length) {
@@ -197,14 +278,14 @@ export default {
       }
     },
     isDrafted(item) {
-      let selected = this.showTeam.filter((player) => {
+      let selected = this.showTeam.filter(player => {
         return player.PlayerID === item.PlayerID;
       });
       if (selected.length) {
         return true;
       }
     },
-    isRemoved() {},
+    isRemoved() {}
   },
   computed: {
     // mix the getters into computed with object spread operator
@@ -212,13 +293,14 @@ export default {
       "getPlayers",
       "isLoading",
       "showTeam",
+      "showPick"
       // ...
     ]),
     itemsPerPage() {
       return 75;
-    },
+    }
   },
-  mounted() {},
+  mounted() {}
 };
 </script>
 

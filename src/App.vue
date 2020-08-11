@@ -6,18 +6,15 @@
 
     <v-app-bar app clipped-left hide-on-scroll="true">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title
-        >Draft<span class="font-weight-bold">Buddy</span
-        ><v-icon>mdi-football</v-icon></v-toolbar-title
-      >
+      <v-toolbar-title>
+        Draft
+        <span class="font-weight-bold">Buddy</span>
+        <v-icon>mdi-football</v-icon>
+      </v-toolbar-title>
     </v-app-bar>
 
     <v-main>
-      <v-container
-        style="background-color: rgba(0, 0, 0, 0.85);"
-        class="fill-height"
-        fluid
-      >
+      <v-container style="background-color: rgba(0, 0, 0, 0.85);" class="fill-height" fluid>
         <v-row align="center" justify="center">
           <v-col lg="10" class="mx-auto">
             <router-view></router-view>
@@ -27,15 +24,14 @@
     </v-main>
 
     <v-footer app>
-      <span
-        ><a
+      <span>
+        <a
           class="white--text text-decoration-none"
           href="https://hicreate.co.uk"
           target="_blank"
-          >hicreate</a
-        >
-        &copy; {{ new Date().getFullYear() }}</span
-      >
+        >hicreate</a>
+        &copy; {{ new Date().getFullYear() }}
+      </span>
     </v-footer>
   </v-app>
 </template>
@@ -45,17 +41,17 @@ import TeamLine from "./components/TeamLine";
 
 export default {
   components: {
-    TeamLine,
+    TeamLine
   },
   props: {
-    source: String,
+    source: String
   },
   data: () => ({
-    drawer: null,
+    drawer: null
   }),
   created() {
     this.$vuetify.theme.dark = true;
-  },
+  }
 };
 </script>
 
@@ -68,5 +64,9 @@ export default {
 #inspire {
   background-image: url("../public/23631.jpg");
   background-size: cover;
+}
+
+.v-data-table__mobile-row__cell {
+  width: 100% !important;
 }
 </style>

@@ -12,8 +12,12 @@ export default new Vuex.Store({
     pick: "1",
     netADP: "1",
     adpGroup: [],
+    selectedPlayer: "",
   },
   getters: {
+    playerLength: (state) => {
+      return state.players.length;
+    },
     getPlayers: (state) => {
       return state.players;
     },
@@ -31,6 +35,9 @@ export default new Vuex.Store({
     },
     showAdpGroup: (state) => {
       return state.adpGroup;
+    },
+    selectedPlayer: (state) => {
+      return state.selectedPlayer;
     },
   },
   mutations: {
@@ -56,6 +63,10 @@ export default new Vuex.Store({
     },
     INCREASE_PICK(state) {
       state.pick++;
+    },
+    //update netADP value
+    SET_SELECTEDPLAYER(state, payload) {
+      state.selectedPlayer = payload;
     },
   },
   actions: {
@@ -87,6 +98,9 @@ export default new Vuex.Store({
     },
     setNetADP({ commit }, payload) {
       commit("SET_NETADP", payload);
+    },
+    setSelectedPlayer({ commit }, payload) {
+      commit("SET_SELECTEDPLAYER", payload);
     },
     addADP({ commit }, payload) {
       const newAdp = parseFloat(payload);

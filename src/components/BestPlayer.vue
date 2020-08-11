@@ -1,5 +1,5 @@
 <template>
-  <v-card min-height="150px">
+  <v-card height="180px">
     <v-sparkline
       :key="sparkKey"
       :labels="this.sparkData"
@@ -27,7 +27,7 @@ const gradients = [
   ["red", "orange", "yellow"],
   ["purple", "violet"],
   ["#00c6ff", "#F0F", "#FF0"],
-  ["#f72047", "#ffd200", "#1feaea"],
+  ["#f72047", "#ffd200", "#1feaea"]
 ];
 
 export default {
@@ -44,13 +44,13 @@ export default {
       gradients,
       type: "trend",
       autoLineWidth: true,
-      sparkKey: 0,
+      sparkKey: 0
     };
   },
   methods: {
     updateSpark() {
       this.sparkKey++;
-    },
+    }
   },
   updated() {
     //this.updateSpark();
@@ -58,13 +58,13 @@ export default {
   computed: {
     sparkData() {
       return this.$store.getters.showAdpGroup;
-    },
+    }
   },
   watch: {
     sparkData: function() {
       this.updateSpark();
-    },
-  },
+    }
+  }
 };
 </script>
 
