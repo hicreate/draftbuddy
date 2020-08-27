@@ -1,6 +1,10 @@
 <template>
   <v-bottom-sheet v-model="sheet" @input="closed">
-    <v-sheet style="border-top: 5px solid #363636;" class="text-center pt-2" height="70vh">
+    <v-sheet
+      style="border-top: 5px solid #363636;"
+      class="text-center pt-2"
+      height="70vh"
+    >
       <div style="height:64px;" class="text-right pa-2">
         <v-btn @click="closed" fab>
           <v-icon>mdi-close</v-icon>
@@ -18,12 +22,17 @@
           <v-card max-width="75%" elevation="0" class="mx-auto">
             <div id="sheet-holder" class="d-flex align-end">
               <div id="sheet-name" class="d-flex align-end">
-                <v-img max-width="96px" max-height="148px" :src="playerDetails.PhotoUrl"></v-img>
+                <v-img
+                  max-width="96px"
+                  max-height="148px"
+                  :src="playerDetails.PhotoUrl"
+                ></v-img>
 
                 <div class="text-left">
                   <v-card-title
                     class="text-uppercase font-weight-bold font-italic"
-                  >{{ player.Name }}</v-card-title>
+                    >{{ player.Name }}</v-card-title
+                  >
                   <v-card-subtitle class="pb-xs-0">
                     <span>{{ player.Team }} / {{ player.Position }}</span>
                   </v-card-subtitle>
@@ -34,11 +43,15 @@
 
               <!-- this is the draft button and simple table for larger screens -->
               <div v-if="$vuetify.breakpoint.mdAndUp">
-                <v-btn large color="success">
+                <v-btn @click="addPlayer" large color="success">
                   DRAFT NOW
                   <v-icon class="ml-2">mdi-account-plus</v-icon>
                 </v-btn>
-                <v-simple-table dense class="mx-auto my-2" style="border: 1px grey solid;">
+                <v-simple-table
+                  dense
+                  class="mx-auto my-2"
+                  style="border: 1px grey solid;"
+                >
                   <template v-slot:default>
                     <thead>
                       <tr>
@@ -58,7 +71,11 @@
 
               <!-- this is the draft button and simple table for smaller screens -->
               <div style="width: 100%;" v-else>
-                <v-simple-table dense class="mx-auto my-2" style="border: 1px grey solid;">
+                <v-simple-table
+                  dense
+                  class="mx-auto my-2"
+                  style="border: 1px grey solid;"
+                >
                   <template v-slot:default>
                     <thead>
                       <tr>
@@ -71,9 +88,9 @@
                     </thead>
                     <tbody>
                       <tr>
-                        <td class="px-1">{{player.FantasyPoints}}</td>
-                        <td class="px-1">{{player.Rank}}</td>
-                        <td class="px-1">{{player.PositionRank}}</td>
+                        <td class="px-1">{{ player.FantasyPoints }}</td>
+                        <td class="px-1">{{ player.Rank }}</td>
+                        <td class="px-1">{{ player.PositionRank }}</td>
                         <td class="px-1">{{ player.ByeWeek }}</td>
                         <td class="px-1">{{ player.Age }}</td>
                       </tr>
@@ -103,7 +120,7 @@
                         >
                           Week
                           <br />
-                          {{game.Week}}
+                          {{ game.Week }}
                         </th>
                       </tr>
                     </thead>
@@ -117,8 +134,11 @@
                           <span
                             v-if="game.HomeTeam === player.Team"
                             style="font-size: 11px;"
-                          >vs. {{game.AwayTeam}}</span>
-                          <span v-else style="font-size: 11px;">@ {{game.HomeTeam}}</span>
+                            >vs. {{ game.AwayTeam }}</span
+                          >
+                          <span v-else style="font-size: 11px;"
+                            >@ {{ game.HomeTeam }}</span
+                          >
                         </td>
                       </tr>
                     </tbody>
@@ -135,12 +155,13 @@
 
 <script>
 import SportsDataService from "../services/SportsDataService";
+import { mapGetters } from "vuex";
 
 export default {
   name: "PlayerSheet",
   props: {
     sheet: Boolean,
-    player: Object
+    player: Object,
   },
   data() {
     return {
@@ -150,15 +171,42 @@ export default {
       value: 0,
       interval: {},
       schedule: "",
-      gameWeek: 1
+      gameWeek: 1,
     };
   },
   methods: {
+    async addPlayer() {
+      let net = this.calculateNet(this.player);
+      this.$store.dispatch("setNetADP", net);
+      this.delayRemove(this.player);
+      let midPlayer = this.player;
+      midPlayer.drafted = true;
+      midPlayer.draftPick = this.showPick;
+      await this.$store.dispatch("addPlayer", midPlayer);
+      await this.$store.dispatch("increasePick");
+      this.closed();
+    },
+    removePlayer(player) {
+      //we're going to add the player to an array and also give it a property that equates to true so we can disable it in the list and set a BG colour
+      this.$store.dispatch("removePlayer", player);
+      this.$store.dispatch("increasePick");
+    },
     closed() {
       this.$emit("closed", false);
       this.value = 0;
       this.playerDetails = "";
       this.playerNews = "";
+    },
+    delayRemove(player) {
+      setTimeout(() => {
+        this.$store.dispatch("removePlayer", player);
+      }, 2000);
+    },
+    calculateNet(player) {
+      let net = this.showPick - player.AverageDraftPosition;
+      console.log(net);
+      this.$store.dispatch("addADP", net.toFixed(2));
+      return net.toFixed(2);
     },
     homeGames(game) {
       return game.HomeTeam == this.player.Team;
@@ -167,41 +215,44 @@ export default {
       return game.AwayTeam == this.player.Team;
     },
     getSchedules() {
-      SportsDataService.getSchedule().then(response => {
+      SportsDataService.getSchedule().then((response) => {
         this.schedule = response.data;
       });
     },
     getPlayerDetails(playerID) {
       console.log("Playuer ID", playerID);
-      SportsDataService.getPlayer(playerID).then(response => {
+      SportsDataService.getPlayer(playerID).then((response) => {
         this.playerDetails = response.data;
       });
     },
-    getPlayerNews(playerID) {
-      console.log("Player ID", playerID);
-      SportsDataService.getPlayerNews(playerID).then(response => {
-        this.playerNews = response.data;
-      });
-    }
+    getPlayerNews() {},
   },
   computed: {
     selectedScheduleHome() {
-      let slim = this.schedule.filter(game => {
+      let slim = this.schedule.filter((game) => {
         return game.HomeTeam === this.player.Team;
       });
       return slim;
     },
     selectedSchedule() {
-      let slimHome = this.schedule.filter(game => {
+      let slimHome = this.schedule.filter((game) => {
         return game.HomeTeam === this.player.Team;
       });
-      let slimAway = this.schedule.filter(game => {
+      let slimAway = this.schedule.filter((game) => {
         return game.AwayTeam === this.player.Team;
       });
       return slimHome
         .concat(slimAway)
         .sort((a, b) => (a.Week > b.Week ? 1 : -1));
-    }
+    },
+    // mix the getters into computed with object spread operator
+    ...mapGetters([
+      "getPlayers",
+      "isLoading",
+      "showTeam",
+      "showPick",
+      // ...
+    ]),
   },
   created() {
     this.getSchedules();
@@ -211,10 +262,9 @@ export default {
     player: function() {
       if (this.player) {
         this.getPlayerDetails(this.player.PlayerID);
-        this.getPlayerNews(this.player.PlayerID);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
